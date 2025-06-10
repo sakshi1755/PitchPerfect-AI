@@ -16,7 +16,7 @@ import {
   Info,
   ArrowRight,
 } from "lucide-react"
-import Header from "./header"
+import Header from "./Header"
 import Footer from "./Footer"
 // API Configuration
 const API_BASE_URL = "http://localhost:3001/api"
