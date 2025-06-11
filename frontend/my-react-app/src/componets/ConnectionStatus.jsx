@@ -28,7 +28,7 @@ const ConnectionStatus = () => {
   const checkConnection = async () => {
     try {
       setStatus("checking")
-      const response = await fetch("http://localhost:3001/api/health", {
+      const response = await fetch("https://pitch-perfect-ai-phi.vercel.app/api/health", {
         method: "GET",
         timeout: 5000,
       })
