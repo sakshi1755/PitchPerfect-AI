@@ -34,7 +34,7 @@ import ConnectionStatus from "./componets/ConnectionStatus"
 
  
 export default function Header({ showMobileMenu, setShowMobileMenu }){ 
-
+const navigate = useNavigate()
 return (
     <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
