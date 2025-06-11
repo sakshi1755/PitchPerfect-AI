@@ -67,6 +67,17 @@ The server will start at: [http://localhost:3001](http://localhost:3001)
 | GET    | `/api/analysis/sample`       | Get sample analysis for demo     |
 | POST   | `/api/analysis/feedback`     | Submit feedback on analysis      |
 
+### 💬 Mock Pitch
+
+This feature allows users to practice their pitch in a simulated conversation with an AI investor. Users can initialize a session with their pitch content (text or file upload), receive AI-generated investor responses, and finally get feedback and a simulated investment decision based on the conversation.
+
+| Method | Endpoint                       | Description                                     |
+|--------|--------------------------------|-------------------------------------------------|
+| POST   | `/api/mockpitch/initialize`    | Initializes a new mock pitch session with pitch content. |
+| POST   | `/api/mockpitch/respond`       | Gets an AI investor response during the conversation. |
+| POST   | `/api/mockpitch/feedback`      | Gets final feedback and investment decision based on the conversation. |
+
+
 ---
 
 ## 🔐 Environment Variables
@@ -251,7 +262,3 @@ CMD ["npm", "start"]
 5. Submit a pull request  
 
 ---
-
-## 📄 License
-
-MIT License – see `LICENSE` file for full details.
