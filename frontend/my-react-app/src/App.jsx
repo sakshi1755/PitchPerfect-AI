@@ -10,7 +10,8 @@
 // }
 
 // export default App;
-import React from 'react';
+import { Routes, Route } from "react-router-dom";
+
 import Homepage from './Homepage';
 import Result from './analyseResult';
 import MockPitch from './Mockpitch';

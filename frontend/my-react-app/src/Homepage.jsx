@@ -1,31 +1,58 @@
 "use client"
+import { useNavigate } from "react-router-dom";
+import React, { useEffect} from "react";
 
 import { useState, useCallback, useRef } from "react"
 import {
   Upload,
   FileText,
+  Sparkles,
+  TrendingUp,
+  Users,
+  Lightbulb,
   X,
   AlertCircle,
   Eye,
   BarChart3,
+  Target,
   Zap,
   Trash2,
   RefreshCw,
   ImageIcon,
   FileIcon,
   Info,
+  BookOpen,
   ArrowRight,
+  Menu,
 } from "lucide-react"
 import Header from "./Header"
 import Footer from "./Footer"
+import Features from "./Features";
 // API Configuration
 const API_BASE_URL = "http://localhost:3001/api"
 
 // API Functions
+import ConnectionStatus from "./componets/ConnectionStatus"
 
+// API Configuration
+
+// API Functions
+const analyzeContent = async (formData) => {
+  const response = await fetch(`${API_BASE_URL}/analysis/analyze`, {
+    method: "POST",
+    body: formData,
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(errorData.message || "Analysis failed")
+  }
+
+  return response.json()
+}
 
 export default function Homepage() {
-  const [currentPage, setCurrentPage] = useState("home") // "home" or "examples"
+  const navigate = useNavigate()
   const [file, setFile] = useState(null)
   const [filePreview, setFilePreview] = useState(null)
   const [text, setText] = useState("")
@@ -36,8 +63,10 @@ export default function Homepage() {
   const [uploadProgress, setUploadProgress] = useState(0)
   const [analysisStep, setAnalysisStep] = useState(0)
   const [showFilePreview, setShowFilePreview] = useState(false)
-  const [downloadingPDF, setDownloadingPDF] = useState(false)
   const fileInputRef = useRef(null)
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [analyzingPitch, setAnalyzingPitch] = useState(false) // Replace 'loading' with this
+const [loadingMockPitch, setLoadingMockPitch] = useState(false) // Add this new state
 
   const analysisSteps = [
     "Processing uploaded content...",
@@ -116,11 +145,102 @@ export default function Homepage() {
       })
     }, 100)
   }
+  const handleMockPitch = () => {
+    const trimmedText = text.trim()
 
+    if (!file && !trimmedText) {
+      setErrors({ general: "Please upload a file or enter text to start mock pitch" })
+      return
+    }
+    setLoadingMockPitch(true)
+    // Create FormData only if needed (for real backend submission — not used in navigate here)
+    const formData = new FormData()
+    if (file) formData.append("file", file)
+    if (trimmedText) formData.append("text", trimmedText)
+    formData.append("industry", "Technology")
+    formData.append("stage", "Series A")
 
+    // Navigate with only the available values
+    const payload = {
+      ...(file && { file }),
+      ...(trimmedText && { text: trimmedText }),
+      industry: "Technology",
+      stage: "Series A",
+    }
 
-  // PDF Download functionality
- 
+      setTimeout(() => {
+          setLoadingMockPitch(false)
+          navigate("/mockpitch", { state: { formData: payload } })
+        }, 500)
+      }
+  
+
+  const handleAnalyze = async () => {
+    if (!file && !text.trim()) {
+      setErrors({ general: "Please upload a file or enter text to analyze" })
+      return
+    }
+    setAnalyzingPitch(true) 
+    setErrors({})
+    setAnalysisStep(0)
+
+    try {
+      // Create FormData for the request
+      const formData = new FormData()
+
+      if (file) {
+        formData.append("file", file)
+      }
+
+      if (text.trim()) {
+        formData.append("text", text.trim())
+      }
+
+      // Add optional metadata
+      formData.append("industry", "Technology") // You can make this dynamic later
+      formData.append("stage", "Series A") // You can make this dynamic later
+
+      // Simulate step-by-step analysis for UI
+      let stepIndex = 0
+
+      const stepInterval = setInterval(() => {
+        setAnalysisStep(stepIndex)
+        if (stepIndex < analysisSteps.length - 1) {
+          stepIndex++
+        }
+        // Else, keep showing the last step until analysis finishes
+      }, 800)
+
+      // Make API call
+      const response = await analyzeContent(formData)
+
+      // Clear the step interval
+      clearInterval(stepInterval)
+
+      // Transform backend response to match frontend expectations
+      const transformedResult = {
+        overallScore: response.analysis.overallScore,
+        scores: response.analysis.scores,
+        analysis: response.analysis.analysis,
+      }
+
+      setResult(transformedResult)
+    } catch (error) {
+      console.error("Analysis error:", error)
+      setErrors({
+        general: error.message || "Analysis failed. Please try again.",
+      })
+    } finally {
+      setLoading(false)
+      setAnalysisStep(0)
+    }
+  }
+
+  useEffect(() => {
+    if (result) {
+      navigate("/result", { state: { result } })
+    }
+  }, [result, navigate])
 
   const removeFile = () => {
     setFile(null)
@@ -137,41 +257,69 @@ export default function Homepage() {
     fileInputRef.current?.click()
   }
 
-  // Score color helper
+  // Close mobile menu when clicking outside or on escape
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showMobileMenu && !event.target.closest(".mobile-menu-container")) {
+        setShowMobileMenu(false)
+      }
+    }
 
-  
+    const handleEscapeKey = (event) => {
+      if (event.key === "Escape" && showMobileMenu) {
+        setShowMobileMenu(false)
+      }
+    }
+
+    if (showMobileMenu) {
+      document.addEventListener("click", handleClickOutside)
+      document.addEventListener("keydown", handleEscapeKey)
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "unset"
+    }
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside)
+      document.removeEventListener("keydown", handleEscapeKey)
+      document.body.style.overflow = "unset"
+    }
+  }, [showMobileMenu])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      {/* Enhanced Header */}
-     <Header/>
+      {/* Enhanced Responsive Header */}
+  <Header showMobileMenu={showMobileMenu} setShowMobileMenu={setShowMobileMenu} />
 
-          
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
+        {/* Enhanced Responsive Hero Section */}
+        <div className="text-center mb-8 sm:mb-12 px-2">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4 leading-tight">
             Perfect Your Pitch with
             <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
               {" "}
               AI Intelligence
             </span>
           </h2>
-          <p className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-6">
+          <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-4 sm:mb-6 px-4">
             Get instant, actionable feedback on your pitch deck. Our AI analyzes structure, content, and market appeal
             using a comprehensive 10-point scoring system.
           </p>
 
           {/* Quick Start Guide */}
-          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl px-6 py-3">
-            <Info className="w-5 h-5 text-blue-600" />
-            <span className="text-sm text-blue-700 font-medium">New here?</span>
+          <div className="inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl px-4 sm:px-6 py-2 sm:py-3 mx-4">
+            <Info className="w-4 sm:w-5 h-4 sm:h-5 text-blue-600 flex-shrink-0" />
+            <span className="text-xs sm:text-sm text-blue-700 font-medium hidden xs:inline">New here?</span>
             <button
-              onClick={() => setCurrentPage("examples")}
-              className="text-sm text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 hover:gap-2 transition-all duration-200"
+              onClick={() => {
+                navigate("/guide")
+              }}
+              className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 hover:gap-2 transition-all duration-200"
             >
-              View Examples & Guide
-              <ArrowRight className="w-4 h-4" />
+              <span className="hidden xs:inline">View Examples & Guide</span>
+              <span className="xs:hidden">Guide</span>
+              <ArrowRight className="w-3 sm:w-4 h-3 sm:h-4" />
             </button>
           </div>
         </div>
@@ -416,36 +564,84 @@ export default function Homepage() {
               </div>
             </div>
 
-            {/* Enhanced Submit Button with Loading States */}
-            <div className="flex justify-center pt-4">
+            {/* Enhanced Responsive Submit Buttons */}
+            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 pt-4 px-2">
               <button
-            
-                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg focus:ring-4 focus:ring-violet-500/25 min-w-[200px]"
-                disabled={loading || (!file && !text.trim())}
+                onClick={handleAnalyze}
+                className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 sm:gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg focus:ring-4 focus:ring-violet-500/25 min-w-0 sm:min-w-[200px] text-sm sm:text-base"
+                disabled={analyzingPitch || (!file && !text.trim())}
                 aria-describedby="analyze-button-description"
               >
-                {loading ? (
+                {analyzingPitch ? (
                   <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-4 sm:w-5 h-4 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     <span>Analyzing...</span>
                   </>
                 ) : (
                   <>
-                    <Zap className="w-5 h-5" />
+                    <Zap className="w-4 sm:w-5 h-4 sm:h-5" />
                     <span>Analyze Pitch</span>
                   </>
                 )}
               </button>
-            </div>
-            </div>
-</div>
-</main>
 
-    
+              <button
+                onClick={handleMockPitch}
+                className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 sm:gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg focus:ring-4 focus:ring-green-500/25 min-w-0 sm:min-w-[200px] text-sm sm:text-base"
+                disabled={loadingMockPitch || (!file && !text.trim())}
+                aria-describedby="mock-pitch-button-description"
+              >
+                {loadingMockPitch ? (
+                  <>
+                    <div className="w-4 sm:w-5 h-4 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <>
+                    <Users className="w-4 sm:w-5 h-4 sm:h-5" />
+                    <span className="hidden sm:inline">Simulate Mock Pitch</span>
+                    <span className="sm:hidden">Mock Pitch</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Loading Progress */}
+            {loading && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 animate-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-blue-800">Analysis in Progress</h4>
+                    <p className="text-sm text-blue-600">{analysisSteps[analysisStep]}</p>
+                  </div>
+                </div>
+                <div className="w-full bg-blue-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                    style={{ width: `${((analysisStep + 1) / analysisSteps.length) * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-blue-600 mt-2 text-center">
+                  Step {analysisStep + 1} of {analysisSteps.length}
+                </p>
+              </div>
+            )}
+
+            <p className="text-center text-xs text-slate-500 mt-2" id="analyze-button-description">
+              Analysis typically takes 30-60 seconds
+            </p>
+          </div>
+        </div>
+
+        {/* Enhanced Responsive Features Section */}
+       <Features/>
+      </main>
 
       {/* Enhanced Footer */}
-      <Footer/>
+  <Footer/>
     </div>
-
   )
 }

@@ -3,9 +3,9 @@ import { useState } from "react"
 import {steps,examples, BestPitchPractices} from './config/exampleGuideConfig'
 import {ArrowLeft,CheckCircle,Lightbulb,BookOpen, Zap} from "lucide-react"
 import { useNavigate } from "react-router-dom"
-
+import MockPitchExample from "./egmock"
 export default function ExampleGuide({ onBack, onLoadSample }) {
-   const navigate=useNavigate()
+  const navigate=useNavigate()
   const [activeExample, setActiveExample] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
 
@@ -101,7 +101,7 @@ export default function ExampleGuide({ onBack, onLoadSample }) {
           </div>
         </div>
 
-        {/* Interactive Demo */}
+        {/* Interactive Demo 
         <div className="mb-16">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-6">
@@ -152,7 +152,7 @@ export default function ExampleGuide({ onBack, onLoadSample }) {
               )}
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Example Pitches */}
         <div className="mb-16">
@@ -234,8 +234,15 @@ export default function ExampleGuide({ onBack, onLoadSample }) {
               </div>
             </div>
           </div>
+          <div className="h-12"></div>
+          <div className="mb-16">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-slate-800 mb-4">AI Lending Platform Mock Pitch Session</h3>
+            <p className="text-slate-600">See how our AI investor simulation analyzes an lending startup's pitch and provides detailed feedback</p>
+          </div>
+          <MockPitchExample/>
+          </div>
         </div>
-
         {/* Best Practices */}
         <div className="mb-16">
           <div className="text-center mb-8">
@@ -271,29 +278,13 @@ export default function ExampleGuide({ onBack, onLoadSample }) {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => {
-                navigate("/"); 
-              }}
+                  navigate("/"); 
+                }}
                 className="bg-white text-violet-600 px-8 py-3 rounded-xl font-semibold hover:bg-slate-50 transition-all duration-200 hover:scale-105"
               >
                 Start Analyzing Your Pitch
               </button>
-              <button
-                onClick={startDemo}
-                disabled={isPlaying}
-                className="bg-white/20 hover:bg-white/30 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {isPlaying ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Running Demo...
-                  </>
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4" />
-                    Try Live Demo
-                  </>
-                )}
-              </button>
+           
             </div>
           </div>
         </div>
