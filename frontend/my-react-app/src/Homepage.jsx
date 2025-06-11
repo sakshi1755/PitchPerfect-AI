@@ -345,7 +345,9 @@ const [loadingMockPitch, setLoadingMockPitch] = useState(false) // Add this new 
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-white mb-2">Analyze Your Pitch</h3>
-                <p className="text-violet-100">Upload your deck or paste content for comprehensive analysis</p>
+                <p className="text-violet-100">Dual Input Support<br></br>
+Easily analyze content by pasting text, uploading files, or both — our system intelligently handles all input formats in one seamless flow.
+</p>
               </div>
               <div className="hidden sm:block">
                 <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
@@ -536,7 +538,7 @@ const [loadingMockPitch, setLoadingMockPitch] = useState(false) // Add this new 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
                 <FileText className="w-4 h-4" />
-                Or Paste Your Content
+                 Paste Your Content
               </label>
               <div className="relative">
                 <textarea
