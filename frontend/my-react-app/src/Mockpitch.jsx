@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 // API Configuration
-const API_BASE_URL = "http://localhost:3001/api";
+const API_BASE_URL = "https://pitch-perfect-ai-phi.vercel.app/api";
 
 const MockPitch = () => {
   const location = useLocation();
