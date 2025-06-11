@@ -299,7 +299,7 @@ const [loadingMockPitch, setLoadingMockPitch] = useState(false) // Add this new 
             Perfect Your Pitch with
             <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
               {" "}
-              AI Intelligence
+              Artificial Intelligence
             </span>
           </h2>
           <p className="text-base sm:text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-4 sm:mb-6 px-4">
